@@ -32,10 +32,10 @@ func init() {
 	}
 }
 
-type patterns []*regexp.Regexp
+type patterns [10]*regexp.Regexp
 
 func (p *patterns) match(s string) bool {
-	for _, r := range *p {
+	for _, r := range p {
 		if r.MatchString(s) {
 			return true
 		}
@@ -89,7 +89,7 @@ func (p *plexFile) parse() {
 	n = strings.ReplaceAll(n, " - ", " ")
 
 	max := 0
-	for _, s := range []string{" ", ".", "-", "_"} {
+	for _, s := range [4]string{" ", ".", "-", "_"} {
 		c := strings.Count(n, s)
 		if c > max {
 			max = c
