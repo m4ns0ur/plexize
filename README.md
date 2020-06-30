@@ -1,7 +1,13 @@
 # plexize
 [![Go Report Card](https://goreportcard.com/badge/github.com/m4ns0ur/plexize)](https://goreportcard.com/report/github.com/m4ns0ur/plexize)
 
-Movie file, [Plex](https://www.plex.tv/) friendly maker.
+Movie and TV show files, Plex friendly maker.
+
+[Plex](https://www.plex.tv/) is a media server where you can keep all your media (movies, TV shows and more) in one centralized place, and access them from different devices. Also Plex is really good in fetching media information and metada, and it has a nice dashboard to show all these information.
+
+Plex is doing its best effort to find media information based on media file name. If you follow the file name conventions and file structures ([movie](https://support.plex.tv/articles/naming-and-organizing-your-movie-media-files/)/[TV shows](https://support.plex.tv/articles/naming-and-organizing-your-tv-show-files/)) it helps a lot to get best results. Plexize will help to convert downloaded movie/TV show file name in the Plex way.
+
+Plex also has guidlines regarding to [Linux permissions for media files](https://support.plex.tv/articles/200288596-linux-permissions-guide/). Plexize will help you to set this up too.
 
 ## Install
 `$ GO111MODULE=on go get github.com/m4ns0ur/plexize`
@@ -14,7 +20,7 @@ Note that `$GOPATH/bin` should be in the path.
 ## Usage
 ```
 $ plexize -h
-Movie file, Plex friendly maker.
+Movie and TV show files, Plex friendly maker.
 
 Usage:
   plexize [OPTION]... FILE...
