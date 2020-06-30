@@ -168,7 +168,7 @@ func (p *plexFile) plexName() string {
 }
 
 func usage() {
-	fmt.Fprintln(flag.CommandLine.Output(), `Movie file, Plex friendly maker.
+	fmt.Fprintln(flag.CommandLine.Output(), `Movie and TV show files, Plex friendly maker.
 
 Usage:
   plexize [OPTION]... FILE...
