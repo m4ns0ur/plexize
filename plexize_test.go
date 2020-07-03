@@ -124,13 +124,32 @@ func TestParse(t *testing.T) {
 		pf := &plexFile{name: tt.n, mov: movie{}}
 		pf.parse()
 		if pf.mov.name != tt.m {
-			t.Errorf("name: %v\ngot:  %v\nwant: %v", tt.n, pf.mov.name, tt.m)
+			t.Errorf("name: %s\ngot:  %s\nwant: %s", tt.n, pf.mov.name, tt.m)
 		}
 		if pf.mov.year != tt.y {
-			t.Errorf("year: %v\ngot:  %v\nwant: %v", tt.n, pf.mov.year, tt.y)
+			t.Errorf("year: %s\ngot:  %s\nwant: %s", tt.n, pf.mov.year, tt.y)
 		}
 		if pf.mov.season != tt.s {
-			t.Errorf("season: %v\ngot:  %v\nwant: %v", tt.n, pf.mov.season, tt.s)
+			t.Errorf("season: %s\ngot:  %s\nwant: %s", tt.n, pf.mov.season, tt.s)
+		}
+	}
+}
+
+func TestPlexName(t *testing.T) {
+	ts := []struct {
+		n, y string
+		s    string
+	}{
+		{"", "", ""},
+		{"foo", "", "foo"},
+		{"bar", "2014", "bar (2014)"},
+	}
+
+	for _, tt := range ts {
+		pf := &plexFile{mov: movie{name: tt.n, year: tt.y}}
+		pn := pf.plexName()
+		if pn != tt.s {
+			t.Errorf("got:  %s\nwant: %s", pn, tt.s)
 		}
 	}
 }
