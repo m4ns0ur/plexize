@@ -209,11 +209,12 @@ func main() {
 	canChown := true
 	if chown {
 		if runtime.GOOS == "windows" || runtime.GOOS == "plan9" {
+			canChown = false
 			log.Printf("Error: OS does not support changing the file owner.\n")
 		} else if uid == -1 {
+			canChown = false
 			log.Printf("Error: user plex does not exist. Cannot change the file owner.\n")
 		}
-		canChown = false
 	}
 
 	// TODO: support recursive path walkthrough.
