@@ -89,7 +89,7 @@ func (p *plexFile) parse() {
 	n = strings.ReplaceAll(n, " - ", " ")
 
 	max := 0
-	for _, s := range [4]string{" ", ".", "-", "_"} {
+	for _, s := range [...]string{" ", ".", "-", "_"} {
 		c := strings.Count(n, s)
 		if c > max {
 			max = c
@@ -177,17 +177,16 @@ Options:
   -d, --dry-run             Show result without running
   -m, --change-mode         Change file mode to 660
   -o, --change-owner        Change file owner to plex:plex (sudo might be needed)
-  -p, --path PATH           Output path (move file to the path and then refactor)`)
+  -p, --path PATH           Output path (move file to the path and then refactor)
+  -s, --separate            Separate movie files in their own folders`)
 }
 
 func main() {
 	log.SetFlags(0)
 
 	var (
-		dryRun bool
-		chmod  bool
-		chown  bool
-		outDir string
+		dryRun, chmod, chown, separate bool
+		outDir                         string
 	)
 
 	flag.Usage = usage
@@ -199,6 +198,8 @@ func main() {
 	flag.BoolVar(&chown, "change-owner", false, "Change file owner (default is plex:plex)")
 	flag.StringVar(&outDir, "p", "", "Output path (move file to the path and then refactor)")
 	flag.StringVar(&outDir, "path", "", "Output path (move file to the path and then refactor)")
+	flag.BoolVar(&separate, "s", false, "Separate movie files in their own folders")
+	flag.BoolVar(&separate, "separate", false, "Separate movie files in their own folders")
 	flag.Parse()
 
 	if flag.NArg() < 1 {
@@ -222,25 +223,36 @@ func main() {
 	}
 
 	// TODO: support recursive path walkthrough.
+	separated := false
 	for i := 0; i < flag.NArg(); i++ {
 		path := flag.Arg(i)
 		dir, file := filepath.Split(path)
 		ext := filepath.Ext(file)
-		name := strings.TrimSuffix(file, ext)
 
-		pf := &plexFile{mov: movie{}}
-		pf.dir = dir
-		pf.name = name
-		pf.ext = strings.ToLower(ext)
+		pf := &plexFile{
+			dir:  dir,
+			name: strings.TrimSuffix(file, ext),
+			ext:  strings.ToLower(ext),
+			mov:  movie{},
+		}
 		pf.parse()
 
-		var np string
-		if outDir == "" {
-			np = fmt.Sprintf("%s%s", filepath.Join(dir, pf.plexName()), pf.ext)
-		} else {
-			np = fmt.Sprintf("%s%s", filepath.Join(outDir, pf.plexName()), pf.ext)
+		ps := make([]string, 0, 3)
+		ps = append(ps, dir, pf.plexName())
+		if outDir != "" {
+			ps[0] = outDir
 		}
-
+		if separate {
+			ps = append(ps, pf.plexName())
+			if !separated && !dryRun {
+				separated = true
+				err := os.Mkdir(filepath.Join(ps[0], pf.plexName()), os.ModePerm)
+				if err != nil {
+					log.Printf("Error: cannot make separate movie folder.\n")
+				}
+			}
+		}
+		np := fmt.Sprintf("%s%s", filepath.Join(ps...), pf.ext)
 		log.Printf("%s -> %s\n", path, np)
 
 		if !dryRun {
