@@ -176,7 +176,8 @@ Usage:
 Options:
   -d, --dry-run             Show result without running
   -m, --change-mode         Change file mode to 660
-  -o, --change-owner        Change file owner to plex:plex (sudo might be needed)`)
+  -o, --change-owner        Change file owner to plex:plex (sudo might be needed)
+  -p, --path PATH           Output path (move file to the path and then refactor)`)
 }
 
 func main() {
@@ -186,6 +187,7 @@ func main() {
 		dryRun bool
 		chmod  bool
 		chown  bool
+		outDir string
 	)
 
 	flag.Usage = usage
@@ -195,6 +197,8 @@ func main() {
 	flag.BoolVar(&chmod, "change-mode", false, "Change file mode to 660")
 	flag.BoolVar(&chown, "o", false, "Change file owner (default is plex:plex)")
 	flag.BoolVar(&chown, "change-owner", false, "Change file owner (default is plex:plex)")
+	flag.StringVar(&outDir, "p", "", "Output path (move file to the path and then refactor)")
+	flag.StringVar(&outDir, "path", "", "Output path (move file to the path and then refactor)")
 	flag.Parse()
 
 	if flag.NArg() < 1 {
@@ -230,13 +234,23 @@ func main() {
 		pf.ext = strings.ToLower(ext)
 		pf.parse()
 
-		np := fmt.Sprintf("%s%s", filepath.Join(dir, pf.plexName()), pf.ext)
+		var np string
+		if outDir == "" {
+			np = fmt.Sprintf("%s%s", filepath.Join(dir, pf.plexName()), pf.ext)
+		} else {
+			np = fmt.Sprintf("%s%s", filepath.Join(outDir, pf.plexName()), pf.ext)
+		}
+
 		log.Printf("%s -> %s\n", path, np)
 
 		if !dryRun {
 			err := os.Rename(path, np)
 			if err != nil {
-				log.Printf("Error: cannot rename the file.\n")
+				if os.IsPermission(err) {
+					log.Println("Error: you don't have permission to move/rename the file (you can retry with sudo).")
+				} else {
+					log.Printf("Error: cannot move/rename the file.\n")
+				}
 			}
 
 			if chmod {

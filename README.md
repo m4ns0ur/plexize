@@ -3,9 +3,9 @@
 
 Movie and TV show files, Plex friendly maker.
 
-[Plex](https://www.plex.tv/) is a media server where you can keep all your media (movies, TV shows and more) in one centralized place, and access them from different devices. Also Plex is really good in fetching media information and metada, and it has a nice dashboard to show all these information.
+[Plex](https://www.plex.tv/) is a media server where you can keep all your media (movies, TV show and more) in one centralized place, and access them from different devices. Also Plex is really good in fetching media information and metada, and it has a nice dashboard to show all these information.
 
-Plex is doing its best effort to find media information based on media file name. If you follow the file name conventions and file structures ([movie](https://support.plex.tv/articles/naming-and-organizing-your-movie-media-files/)/[TV shows](https://support.plex.tv/articles/naming-and-organizing-your-tv-show-files/)) it helps a lot to get best results. Plexize will help to convert downloaded movie/TV show file name in the Plex way.
+Plex is doing its best effort to find media information based on media file name. If you follow the file name conventions and file structures ([movie](https://support.plex.tv/articles/naming-and-organizing-your-movie-media-files/)/[TV show](https://support.plex.tv/articles/naming-and-organizing-your-tv-show-files/)) it helps a lot to get best results. Plexize will help to convert downloaded movie/TV show file name in the Plex way.
 
 Plex also has guidlines regarding to [Linux permissions for media files](https://support.plex.tv/articles/200288596-linux-permissions-guide/). Plexize will help you to set this up too.
 
@@ -29,6 +29,7 @@ Options:
   -d, --dry-run             Show result without running
   -m, --change-mode         Change file mode to 660
   -o, --change-owner        Change file owner to plex:plex (sudo might be needed)
+  -p, --path PATH           Output path (move file to the path and then refactor)
 ```
 
 ## License
