@@ -79,6 +79,7 @@ func TestParse(t *testing.T) {
 		{"rick.and.morty.s03e01.720p.hdtv.x264-w4f", "Rick And Morty S03e01", "", "03"},
 		{"Silicon.Valley.S04E04.1080p.WEB.h264-TBS", "Silicon Valley S04E04", "", "04"},
 		{"Sin.City.A.Dame.to.Kill.For.2014.1080p.BluRay.x264-SPARKS", "Sin City A Dame To Kill For", "2014", ""},
+		{"Sister.Emanuelle.DvdRip.HardSub", "Sister Emanuelle", "", ""},
 		{"Sons.of.Anarchy.S01E03", "Sons Of Anarchy S01E03", "", "01"},
 		{"South Park S18E05 HDTV x264-KILLERS [eztv]", "South Park S18E05", "", "18"},
 		{"Teenage.Mutant.Ninja.Turtles.2014.720p.HDRip.x264.AC3.5.1-RARBG", "Teenage Mutant Ninja Turtles", "2014", ""},
