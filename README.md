@@ -30,7 +30,7 @@ Options:
   -m, --change-mode         Change file mode to 660
   -o, --change-owner        Change file owner to plex:plex (sudo might be needed)
   -p, --path PATH           Output path (move file to the path and then refactor)
-  -s, --separate            Separate movie files in their own folders
+  -s, --separate            Separate movie files in their own folders (not required for TV series)
 ```
 
 ## License
