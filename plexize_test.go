@@ -495,6 +495,52 @@ func TestPlexName(t *testing.T) {
 	}
 }
 
+func TestPlexDir(t *testing.T) {
+	ts := []struct {
+		m, y, s, e, en string
+		d              string
+	}{
+		{"", "", "", "", "", ""},
+		{"foo", "", "", "", "", "foo"},
+		{"foo", "1986", "", "", "", "foo (1986)"},
+		{"bar", "", "03", "07", "", "bar"},
+		{"bar", "2014", "03", "07", "", "bar (2014)"},
+		{"baz", "", "11", "22", "blah", "baz"},
+		{"baz", "2020", "11", "22", "blah", "baz (2020)"},
+	}
+
+	for _, tt := range ts {
+		pf := &plexFile{mov: movie{name: tt.m, year: tt.y, season: tt.s, episode: tt.e, epiName: tt.en}}
+		pd := pf.plexDir()
+		if pd != tt.d {
+			t.Errorf("got:  %s\nwant: %s", pd, tt.d)
+		}
+	}
+}
+
+func TestSeasonDir(t *testing.T) {
+	ts := []struct {
+		m, y, s, e, en string
+		d              string
+	}{
+		{"", "", "", "", "", ""},
+		{"foo", "", "", "", "", ""},
+		{"foo", "1986", "", "", "", ""},
+		{"bar", "", "03", "07", "", "Season 03"},
+		{"bar", "2014", "03", "07", "", "Season 03"},
+		{"baz", "", "11", "22", "blah", "Season 11"},
+		{"baz", "2020", "11", "22", "blah", "Season 11"},
+	}
+
+	for _, tt := range ts {
+		pf := &plexFile{mov: movie{name: tt.m, year: tt.y, season: tt.s, episode: tt.e, epiName: tt.en}}
+		pd := pf.seasonDir()
+		if pd != tt.d {
+			t.Errorf("got:  %s\nwant: %s", pd, tt.d)
+		}
+	}
+}
+
 func BenchmarkParse(b *testing.B) {
 	pf := &plexFile{name: "Marvel's.Agents.of.S.H.I.E.L.D.S02E01.Shadows.1080p.WEB-DL.DD5.1", mov: movie{}}
 	for i := 0; i < b.N; i++ {
