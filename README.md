@@ -23,6 +23,7 @@ $ plexize -h
 Movie and TV show files, Plex friendly maker.
 
 Usage:
+  plexize [-]
   plexize [OPTION]... FILE...
 
 Options:

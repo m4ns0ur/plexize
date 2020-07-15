@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -221,6 +222,7 @@ func usage() {
 	fmt.Fprintln(flag.CommandLine.Output(), `Movie and TV show files, Plex friendly maker.
 
 Usage:
+  plexize [-]
   plexize [OPTION]... FILE...
 
 Options:
@@ -252,9 +254,16 @@ func main() {
 	flag.BoolVar(&separate, "separate", false, "Separate movie files in their own folders (not required for TV series)")
 	flag.Parse()
 
-	if flag.NArg() < 1 {
-		// TODO: support stdin.
-		log.Fatalln("Error: file (path) is required")
+	if flag.Arg(0) == "" || flag.Arg(0) == "-" {
+		scanner := bufio.NewScanner(os.Stdin)
+		for scanner.Scan() {
+			l := scanner.Text()
+			log.Printf("%s\n\n", convert(l, true, false, ""))
+		}
+		if err := scanner.Err(); err != nil {
+			log.Fatalf("Error: cannot read from stdin")
+		}
+		os.Exit(0)
 	}
 
 	if dryRun {
@@ -273,46 +282,9 @@ func main() {
 	}
 
 	// TODO: support recursive path walkthrough.
-	separated := false
 	for i := 0; i < flag.NArg(); i++ {
 		path := flag.Arg(i)
-		dir, file := filepath.Split(path)
-		ext := filepath.Ext(file)
-
-		pf := &plexFile{
-			dir:  dir,
-			name: strings.TrimSuffix(file, ext),
-			ext:  strings.ToLower(ext),
-			mov:  movie{},
-		}
-		pf.parse()
-
-		ps := make([]string, 0, 4)
-		ps = append(ps, dir)
-		if outDir != "" {
-			ps[0] = outDir
-		}
-		if separate || pf.mov.season != "" {
-			ps = append(ps, pf.plexDir())
-			if !separated && !dryRun {
-				separated = true
-				err := os.Mkdir(filepath.Join(ps...), os.ModePerm)
-				if err != nil {
-					log.Printf("Error: cannot make separate movie or TV serie folder.\n")
-				}
-			}
-		}
-		if pf.mov.season != "" {
-			ps = append(ps, pf.seasonDir())
-			if !dryRun {
-				err := os.Mkdir(filepath.Join(ps...), os.ModePerm)
-				if err != nil && !os.IsExist(err) {
-					log.Printf("Error: cannot make TV serie season folder.\n")
-				}
-			}
-		}
-		ps = append(ps, pf.plexName())
-		np := fmt.Sprintf("%s%s", filepath.Join(ps...), pf.ext)
+		np := convert(path, dryRun, separate, outDir)
 		log.Printf("%s -> %s\n", path, np)
 
 		if !dryRun {
@@ -342,4 +314,43 @@ func main() {
 			// TODO: support copy to server (delete local).
 		}
 	}
+}
+
+func convert(path string, dryRun, separate bool, outDir string) (newPath string) {
+	dir, file := filepath.Split(path)
+	ext := filepath.Ext(file)
+
+	pf := &plexFile{
+		dir:  dir,
+		name: strings.TrimSuffix(file, ext),
+		ext:  strings.ToLower(ext),
+		mov:  movie{},
+	}
+	pf.parse()
+
+	ps := make([]string, 0, 4)
+	ps = append(ps, dir)
+	if outDir != "" {
+		ps[0] = outDir
+	}
+	if separate || pf.mov.season != "" {
+		ps = append(ps, pf.plexDir())
+		if !dryRun {
+			err := os.Mkdir(filepath.Join(ps...), os.ModePerm)
+			if err != nil && !os.IsExist(err) {
+				log.Printf("Error: cannot make separate movie or TV serie folder.\n")
+			}
+		}
+	}
+	if pf.mov.season != "" {
+		ps = append(ps, pf.seasonDir())
+		if !dryRun {
+			err := os.Mkdir(filepath.Join(ps...), os.ModePerm)
+			if err != nil && !os.IsExist(err) {
+				log.Printf("Error: cannot make TV serie season folder.\n")
+			}
+		}
+	}
+	ps = append(ps, pf.plexName())
+	return fmt.Sprintf("%s%s", filepath.Join(ps...), pf.ext)
 }
