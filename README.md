@@ -1,5 +1,5 @@
 # plexize
-[![Go Report Card](https://goreportcard.com/badge/github.com/m4ns0ur/plexize)](https://goreportcard.com/report/github.com/m4ns0ur/plexize)
+[![Go Report Card](https://goreportcard.com/badge/github.com/m4ns0ur/plexize)](https://goreportcard.com/report/github.com/m4ns0ur/plexize) [![Travis CI Build](https://travis-ci.org/m4ns0ur/plexize.svg?branch=master)](https://travis-ci.org/m4ns0ur/plexize.svg?branch=master)
 
 Movie and TV show files, Plex friendly maker.
 
