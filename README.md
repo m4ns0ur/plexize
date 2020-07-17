@@ -32,6 +32,15 @@ Options:
   -o, --change-owner        Change file owner to plex:plex (sudo might be needed)
   -p, --path PATH           Output path (move file to the path and then refactor)
   -s, --separate            Separate movie files in their own folders (not required for TV series)
+
+Example:
+  $ plexize                                        # start in interactive mode to convert file(s) name
+  $ cat movie_list.txt | plexize                   # convert file(s) name with piping
+  $ plexize trainwreck.mkv war.dogs.2016.mkv       # convert multiple files
+  $ plexize -d The.Platform.2019.720p.mkv          # dry run
+  $ plexize -p ~/plex The.Platform.2019.720p.mkv   # move the file to ~/plex and convert
+  $ plexize -m -o -s The.Platform.2019.720p.mkv    # change mode/owner and move the movie file to its own folder
+  $ plexize -m -o The.Flash.2014.S01E01.HDTV.mkv   # change mode/owner a TV show file (would be separated in its own folder)
 ```
 
 ## License
