@@ -25,11 +25,11 @@ func init() {
 	var err error
 	uid, err = strconv.Atoi(u.Uid)
 	if err != nil {
-		log.Panicf("Error: cannot parse the number: %s.\n", u.Uid)
+		log.Panicf("cannot parse the number: %v\n", err)
 	}
 	gid, err = strconv.Atoi(u.Gid)
 	if err != nil {
-		log.Panicf("Error: cannot parse the number: %s.\n", u.Gid)
+		log.Panicf("cannot parse the number: %v\n", err)
 	}
 }
 
@@ -270,7 +270,7 @@ func main() {
 			log.Printf("%s\n", convert(l, true, false, ""))
 		}
 		if err := scanner.Err(); err != nil {
-			log.Fatalf("Error: cannot read from stdin")
+			log.Fatalf("cannot read from stdin: %v\n", err)
 		}
 		os.Exit(0)
 	}
@@ -283,10 +283,10 @@ func main() {
 	if chown {
 		if runtime.GOOS == "windows" || runtime.GOOS == "plan9" {
 			canChown = false
-			log.Printf("Error: OS does not support changing the file owner.\n")
+			log.Println("the OS does not support changing the file owner")
 		} else if uid == -1 {
 			canChown = false
-			log.Printf("Error: user plex does not exist. Cannot change the file owner.\n")
+			log.Println("user plex does not exist, cannot change the file owner")
 		}
 	}
 
@@ -300,27 +300,28 @@ func main() {
 			err := os.Rename(path, np)
 			if err != nil {
 				if os.IsPermission(err) {
-					log.Println("Error: you don't have permission to move/rename the file (you can retry with sudo).")
+					log.Printf("you don't have permission to move/rename the file (you can retry with sudo): %v\n", err)
 				} else {
-					log.Printf("Error: cannot move/rename the file.\n")
+					log.Printf("cannot move/rename the file: %v\n", err)
 				}
 			}
 
 			if chmod {
 				err := os.Chmod(np, 0660)
 				if err != nil {
-					log.Printf("Error: cannot change the file mode.\n")
+					log.Printf("cannot change the file mode: %v\n", err)
 				}
 			}
 
 			if chown && canChown {
 				err = os.Chown(np, uid, gid)
 				if os.IsPermission(err) {
-					log.Println("Error: you don't have permission to change owner of the file (you can retry with sudo).")
+					log.Printf("you don't have permission to change owner of the file (you can retry with sudo): %v\n", err)
 				}
 			}
 
 			// TODO: support copy to server (delete local).
+			// TODO: support fixing title in metadata.
 		}
 	}
 }
@@ -345,18 +346,18 @@ func convert(path string, dryRun, separate bool, outDir string) (newPath string)
 	if separate || pf.mov.season != "" {
 		ps = append(ps, pf.plexDir())
 		if !dryRun {
-			err := os.Mkdir(filepath.Join(ps...), os.ModePerm)
+			err := os.MkdirAll(filepath.Join(ps...), os.ModePerm)
 			if err != nil && !os.IsExist(err) {
-				log.Printf("Error: cannot make separate movie or TV serie folder.\n")
+				log.Printf("cannot make separate movie or TV serie folder: %v\n", err)
 			}
 		}
 	}
 	if pf.mov.season != "" {
 		ps = append(ps, pf.seasonDir())
 		if !dryRun {
-			err := os.Mkdir(filepath.Join(ps...), os.ModePerm)
+			err := os.MkdirAll(filepath.Join(ps...), os.ModePerm)
 			if err != nil && !os.IsExist(err) {
-				log.Printf("Error: cannot make TV serie season folder.\n")
+				log.Printf("cannot make TV serie season folder: %v\n", err)
 			}
 		}
 	}

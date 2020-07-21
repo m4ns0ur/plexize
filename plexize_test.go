@@ -1,6 +1,9 @@
 package main
 
 import (
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -500,13 +503,34 @@ func TestPlexDir(t *testing.T) {
 		m, y, s, e, en string
 		d              string
 	}{
-		{"", "", "", "", "", ""},
-		{"foo", "", "", "", "", "foo"},
-		{"foo", "1986", "", "", "", "foo (1986)"},
-		{"bar", "", "03", "07", "", "bar"},
-		{"bar", "2014", "03", "07", "", "bar (2014)"},
-		{"baz", "", "11", "22", "blah", "baz"},
-		{"baz", "2020", "11", "22", "blah", "baz (2020)"},
+		{
+			"", "", "", "", "",
+			"",
+		},
+		{
+			"foo", "", "", "", "",
+			"foo",
+		},
+		{
+			"foo", "1986", "", "", "",
+			"foo (1986)",
+		},
+		{
+			"bar", "", "03", "07", "",
+			"bar",
+		},
+		{
+			"bar", "2014", "03", "07", "",
+			"bar (2014)",
+		},
+		{
+			"baz", "", "11", "22", "blah",
+			"baz",
+		},
+		{
+			"baz", "2020", "11", "22", "blah",
+			"baz (2020)",
+		},
 	}
 
 	for _, tt := range ts {
@@ -523,13 +547,34 @@ func TestSeasonDir(t *testing.T) {
 		m, y, s, e, en string
 		d              string
 	}{
-		{"", "", "", "", "", ""},
-		{"foo", "", "", "", "", ""},
-		{"foo", "1986", "", "", "", ""},
-		{"bar", "", "03", "07", "", "Season 03"},
-		{"bar", "2014", "03", "07", "", "Season 03"},
-		{"baz", "", "11", "22", "blah", "Season 11"},
-		{"baz", "2020", "11", "22", "blah", "Season 11"},
+		{
+			"", "", "", "", "",
+			"",
+		},
+		{
+			"foo", "", "", "", "",
+			"",
+		},
+		{
+			"foo", "1986", "", "", "",
+			"",
+		},
+		{
+			"bar", "", "03", "07", "",
+			"Season 03",
+		},
+		{
+			"bar", "2014", "03", "07", "",
+			"Season 03",
+		},
+		{
+			"baz", "", "11", "22", "blah",
+			"Season 11",
+		},
+		{
+			"baz", "2020", "11", "22", "blah",
+			"Season 11",
+		},
 	}
 
 	for _, tt := range ts {
@@ -541,9 +586,103 @@ func TestSeasonDir(t *testing.T) {
 	}
 }
 
+func TestConvert(t *testing.T) {
+	const mn = "foo.2020.abc"
+	const tn = "foo.s01e02.bar.abc"
+
+	d, err := testDir(mn, tn)
+	if err != nil {
+		t.Fatalf("Cannot create temp directory/file: %v\n", err)
+	}
+	defer os.RemoveAll(d)
+
+	ts := []struct {
+		p    string
+		d, s bool
+		o    string
+		n    string
+	}{
+		{
+			mn, true, false, "",
+			"Foo (2020).abc",
+		},
+		{
+			mn, true, false, "target",
+			filepath.Join("target", "Foo (2020).abc"),
+		},
+		{
+			mn, true, true, "",
+			filepath.Join("Foo (2020)", "Foo (2020).abc"),
+		},
+		{
+			mn, true, true, "target",
+			filepath.Join("target", "Foo (2020)", "Foo (2020).abc"),
+		},
+		{
+			tn, true, false, "",
+			filepath.Join("Foo", "Season 01", "Foo - s01e02 - Bar.abc"),
+		},
+		{
+			tn, true, false, "target",
+			filepath.Join("target", "Foo", "Season 01", "Foo - s01e02 - Bar.abc"),
+		},
+		// Not dry run.
+		{
+			mn, false, true, filepath.Join(d, "target"),
+			filepath.Join(d, "target", "Foo (2020)", "Foo (2020).abc"),
+		},
+		{
+			tn, false, false, filepath.Join(d, "target"),
+			filepath.Join(d, "target", "Foo", "Season 01", "Foo - s01e02 - Bar.abc"),
+		},
+	}
+
+	for _, tt := range ts {
+		np := convert(tt.p, tt.d, tt.s, tt.o)
+		if np != tt.n {
+			t.Errorf("got:  %s\nwant: %s", np, tt.n)
+		}
+		if !tt.d {
+			d, _ := filepath.Split(np)
+			if _, err := os.Stat(d); os.IsNotExist(err) {
+				t.Errorf("dir does not exist:  %v\n", err)
+			}
+		}
+	}
+}
+
 func BenchmarkParse(b *testing.B) {
 	pf := &plexFile{name: "Marvel's.Agents.of.S.H.I.E.L.D.S02E01.Shadows.1080p.WEB-DL.DD5.1", mov: movie{}}
 	for i := 0; i < b.N; i++ {
 		pf.parse()
 	}
+}
+
+func BenchmarkConvert(b *testing.B) {
+	const n = "foo.s01e02.bar.abc"
+
+	d, err := testDir(n)
+	if err != nil {
+		b.Fatalf("Cannot create temp directory/file: %v\n", err)
+	}
+	defer os.RemoveAll(d)
+
+	for i := 0; i < b.N; i++ {
+		convert(n, false, false, filepath.Join(d, "target"))
+	}
+}
+
+func testDir(paths ...string) (string, error) {
+	d, err := ioutil.TempDir("", "plexize")
+	if err != nil {
+		return "", err
+	}
+
+	for _, p := range paths {
+		if err := ioutil.WriteFile(filepath.Join(d, p), nil, 0666); err != nil {
+			return "", err
+		}
+	}
+
+	return d, nil
 }
