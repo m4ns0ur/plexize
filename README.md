@@ -37,6 +37,7 @@ Example:
   $ plexize                                        # start in interactive mode to convert file(s) name
   $ cat movie_list.txt | plexize                   # convert file(s) name with piping
   $ plexize trainwreck.mkv war.dogs.2016.mkv       # convert multiple files
+  $ plexize the*.mkv                               # convert multiple files with wildcard
   $ plexize -d The.Platform.2019.720p.mkv          # dry run
   $ plexize -p ~/plex The.Platform.2019.720p.mkv   # move the file to ~/plex and convert
   $ plexize -m -o -s The.Platform.2019.720p.mkv    # change mode/owner and move the movie file to its own folder

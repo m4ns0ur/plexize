@@ -236,6 +236,7 @@ Example:
   $ plexize                                        # start in interactive mode to convert file(s) name
   $ cat movie_list.txt | plexize                   # convert file(s) name with piping
   $ plexize trainwreck.mkv war.dogs.2016.mkv       # convert multiple files
+  $ plexize the*.mkv                               # convert multiple files with wildcard
   $ plexize -d The.Platform.2019.720p.mkv          # dry run
   $ plexize -p ~/plex The.Platform.2019.720p.mkv   # move the file to ~/plex and convert
   $ plexize -m -o -s The.Platform.2019.720p.mkv    # change mode/owner and move the movie file to its own folder
@@ -290,38 +291,48 @@ func main() {
 		}
 	}
 
-	// TODO: support recursive path walkthrough.
 	for i := 0; i < flag.NArg(); i++ {
-		path := flag.Arg(i)
-		np := convert(path, dryRun, separate, outDir)
-		log.Printf("%s -> %s\n", path, np)
-
-		if !dryRun {
-			err := os.Rename(path, np)
+		var paths []string
+		var err error
+		if strings.Contains(flag.Arg(i), "*") {
+			paths, err = filepath.Glob(flag.Arg(i))
 			if err != nil {
-				if os.IsPermission(err) {
-					log.Printf("you don't have permission to move/rename the file (you can retry with sudo): %v\n", err)
-				} else {
-					log.Printf("cannot move/rename the file: %v\n", err)
-				}
+				log.Fatalf("invalid path format: %v\n", err)
 			}
+		} else {
+			paths = append(paths, flag.Arg(i))
+		}
+		for _, path := range paths {
+			np := convert(path, dryRun, separate, outDir)
+			log.Printf("%s -> %s\n", path, np)
 
-			if chmod {
-				err := os.Chmod(np, 0660)
+			if !dryRun {
+				err := os.Rename(path, np)
 				if err != nil {
-					log.Printf("cannot change the file mode: %v\n", err)
+					if os.IsPermission(err) {
+						log.Printf("you don't have permission to move/rename the file (you can retry with sudo): %v\n", err)
+					} else {
+						log.Printf("cannot move/rename the file: %v\n", err)
+					}
 				}
-			}
 
-			if chown && canChown {
-				err = os.Chown(np, uid, gid)
-				if os.IsPermission(err) {
-					log.Printf("you don't have permission to change owner of the file (you can retry with sudo): %v\n", err)
+				if chmod {
+					err := os.Chmod(np, 0660)
+					if err != nil {
+						log.Printf("cannot change the file mode: %v\n", err)
+					}
 				}
-			}
 
-			// TODO: support copy to server (delete local).
-			// TODO: support fixing title in metadata.
+				if chown && canChown {
+					err = os.Chown(np, uid, gid)
+					if os.IsPermission(err) {
+						log.Printf("you don't have permission to change owner of the file (you can retry with sudo): %v\n", err)
+					}
+				}
+
+				// TODO: support copy to server (delete local).
+				// TODO: support fixing title in metadata.
+			}
 		}
 	}
 }
