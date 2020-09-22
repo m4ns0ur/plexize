@@ -268,7 +268,7 @@ func main() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			l := scanner.Text()
-			log.Printf("%s\n", convert(l, true, false, ""))
+			log.Printf("%s\n", convert(l, true, false, false, ""))
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatalf("cannot read from stdin: %v\n", err)
@@ -280,13 +280,12 @@ func main() {
 		log.Println("Dry run...")
 	}
 
-	canChown := true
 	if chown {
 		if runtime.GOOS == "windows" || runtime.GOOS == "plan9" {
-			canChown = false
+			chown = false
 			log.Println("the OS does not support changing the file owner")
 		} else if uid == -1 {
-			canChown = false
+			chown = false
 			log.Println("user plex does not exist, cannot change the file owner")
 		}
 	}
@@ -303,7 +302,7 @@ func main() {
 			paths = append(paths, flag.Arg(i))
 		}
 		for _, path := range paths {
-			np := convert(path, dryRun, separate, outDir)
+			np := convert(path, dryRun, separate, chown, outDir)
 			log.Printf("%s -> %s\n", path, np)
 
 			if !dryRun {
@@ -323,7 +322,7 @@ func main() {
 					}
 				}
 
-				if chown && canChown {
+				if chown {
 					err = os.Chown(np, uid, gid)
 					if os.IsPermission(err) {
 						log.Printf("you don't have permission to change owner of the file (you can retry with sudo): %v\n", err)
@@ -337,7 +336,7 @@ func main() {
 	}
 }
 
-func convert(path string, dryRun, separate bool, outDir string) (newPath string) {
+func convert(path string, dryRun, separate, chown bool, outDir string) (newPath string) {
 	dir, file := filepath.Split(path)
 	ext := filepath.Ext(file)
 
@@ -357,21 +356,28 @@ func convert(path string, dryRun, separate bool, outDir string) (newPath string)
 	if separate || pf.mov.season != "" {
 		ps = append(ps, pf.plexDir())
 		if !dryRun {
-			err := os.MkdirAll(filepath.Join(ps...), os.ModePerm)
-			if err != nil && !os.IsExist(err) {
-				log.Printf("cannot make separate movie or TV serie folder: %v\n", err)
-			}
+			makeDir(chown, "cannot make separate movie or TV serie folder: %v\n", ps...)
 		}
 	}
 	if pf.mov.season != "" {
 		ps = append(ps, pf.seasonDir())
 		if !dryRun {
-			err := os.MkdirAll(filepath.Join(ps...), os.ModePerm)
-			if err != nil && !os.IsExist(err) {
-				log.Printf("cannot make TV serie season folder: %v\n", err)
-			}
+			makeDir(chown, "cannot make TV serie season folder: %v\n", ps...)
 		}
 	}
 	ps = append(ps, pf.plexName())
 	return fmt.Sprintf("%s%s", filepath.Join(ps...), pf.ext)
+}
+
+func makeDir(chown bool, errMsg string, ps ...string) {
+	err := os.MkdirAll(filepath.Join(ps...), os.ModePerm)
+	if err != nil && !os.IsExist(err) {
+		log.Printf(errMsg, err)
+	}
+	if chown {
+		err = os.Chown(filepath.Join(ps...), uid, gid)
+		if os.IsPermission(err) {
+			log.Printf("you don't have permission to change owner of the file (you can retry with sudo): %v\n", err)
+		}
+	}
 }
