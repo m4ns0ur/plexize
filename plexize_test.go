@@ -452,6 +452,10 @@ func TestParse(t *testing.T) {
 			"X-Men.Days.of.Future.Past.2014.1080p.WEB-DL.DD5.1.H264-RARBG",
 			"X-Men Days Of Future Past", "2014", "", "", "",
 		},
+		{
+			"filmpokvipNo_Hard_Feelings_2023_1080p_WEBRip_x265_10bit_AAC5_1_YT",
+			"No Hard Feelings", "2023", "", "", "",
+		},
 	}
 
 	for _, tt := range ts {

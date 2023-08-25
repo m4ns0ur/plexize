@@ -17,6 +17,8 @@ import (
 var uid int = -1
 var gid int
 
+var toRemove = [...]string{"filmpokvip"}
+
 func init() {
 	u, _ := user.Lookup("plex")
 	if u == nil {
@@ -85,6 +87,10 @@ func (p *plexFile) parse() {
 	)
 
 	n := p.name
+
+	for _, s := range toRemove {
+		n = strings.ReplaceAll(n, s, "")
+	}
 
 	n = bracePrefixRe.ReplaceAllString(n, "$1")
 	n = domainRe.ReplaceAllString(n, "$1")
