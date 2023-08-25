@@ -17,7 +17,7 @@ import (
 var uid int = -1
 var gid int
 
-var toRemove = [...]string{"filmpokvip"}
+var toRemove = [...]string{"unknown_release_type", "filmpokvip"}
 
 func init() {
 	u, _ := user.Lookup("plex")
@@ -57,7 +57,7 @@ var commonPatterns = patterns{
 	regexp.MustCompile(`[1-9]\d{2,3}p`),
 	regexp.MustCompile(`(?:Half-)?SBS`),
 	regexp.MustCompile(`MKV|AVI|MP4`),
-	regexp.MustCompile(`unknown_release_type|UpScaled|iNTERNAL|CONVERT|[hH]ard[sS]ub|READNFO|PROPER|REPACK|UNRATED|(?:(?i)rarbg)|(?:(?i)hevc)|AMZN|PDTV|1CD|WEB|NBY|R[0-9]|TS|HC|WS|3D`),
+	regexp.MustCompile(`UpScaled|iNTERNAL|CONVERT|[hH]ard[sS]ub|READNFO|PROPER|REPACK|UNRATED|(?:(?i)rarbg)|(?:(?i)hevc)|AMZN|PDTV|1CD|WEB|NBY|R[0-9]|TS|HC|WS|3D`),
 }
 
 type movie struct {
@@ -121,6 +121,9 @@ func (p *plexFile) parse() {
 			if y := yearRe.FindString(t); y != "" && p.mov.name != "" {
 				done = true
 				p.mov.year = y
+				if i := strings.Index(t, y); i > 0 {
+					p.mov.name += t[:i-1] + " "
+				}
 				continue
 			}
 

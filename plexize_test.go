@@ -456,6 +456,10 @@ func TestParse(t *testing.T) {
 			"filmpokvipNo_Hard_Feelings_2023_1080p_WEBRip_x265_10bit_AAC5_1_YT",
 			"No Hard Feelings", "2023", "", "", "",
 		},
+		{
+			"Venus in Fur.2013",
+			"Venus In Fur", "2013", "", "", "",
+		},
 	}
 
 	for _, tt := range ts {
