@@ -1,3 +1,3 @@
 module github.com/m4ns0ur/plexize
 
-go 1.14
+go 1.21.3

@@ -460,6 +460,14 @@ func TestParse(t *testing.T) {
 			"Venus in Fur.2013",
 			"Venus In Fur", "2013", "", "", "",
 		},
+		{
+			"Mission_Impossible_Dead_Reckoning_Part_One_2023_1080P_Amzn_Web",
+			"Mission Impossible Dead Reckoning Part One", "2023", "", "", "",
+		},
+		{
+			"The_Swan_2023_10bit_1080p_x265_WEB-DL",
+			"The Swan", "2023", "", "", "",
+		},
 	}
 
 	for _, tt := range ts {

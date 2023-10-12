@@ -35,7 +35,7 @@ func init() {
 	}
 }
 
-type patterns [10]*regexp.Regexp
+type patterns [11]*regexp.Regexp
 
 func (p *patterns) match(s string) bool {
 	for _, r := range p {
@@ -54,9 +54,10 @@ var commonPatterns = patterns{
 	regexp.MustCompile(`(?i)hindi|(?:rus|ita)(?:\.eng|$)|eng$`),
 	regexp.MustCompile(`[1-9]\d+(?:\.\d+)?(?:(?i)gb|mb)`),
 	regexp.MustCompile(`(?i)EXTENDED(:?.CUT)?`),
-	regexp.MustCompile(`[1-9]\d{2,3}p`),
+	regexp.MustCompile(`[1-9]\d{2,3}[pP]`),
 	regexp.MustCompile(`(?:Half-)?SBS`),
 	regexp.MustCompile(`MKV|AVI|MP4`),
+	regexp.MustCompile(`10bit`),
 	regexp.MustCompile(`UpScaled|iNTERNAL|CONVERT|[hH]ard[sS]ub|READNFO|PROPER|REPACK|UNRATED|(?:(?i)rarbg)|(?:(?i)hevc)|AMZN|PDTV|1CD|WEB|NBY|R[0-9]|TS|HC|WS|3D`),
 }
 
