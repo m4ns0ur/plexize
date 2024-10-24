@@ -17,7 +17,7 @@ import (
 var uid int = -1
 var gid int
 
-var toRemove = [...]string{"unknown_release_type", "filmpokvip"}
+var toRemove = [...]string{"unknown_release_type", "filmpokvip", "Film_pok"}
 
 func init() {
 	u, _ := user.Lookup("plex")
@@ -48,7 +48,7 @@ func (p *patterns) match(s string) bool {
 
 // Inspired by PTN project (https://github.com/divijbindlish/parse-torrent-name/blob/master/PTN/patterns.py).
 var commonPatterns = patterns{
-	regexp.MustCompile(`(?:PPV\.)?[HP]DTV|(?:HD)?CAM|hd-?ts|(?:PPV )?WEB-?DL(?: DVDRip)?|(?:D[vV][dD]|H[dD]|Cam|W[EB]B|B[DR])(?:(?i)rip)|(?:(?i)blu[-]?ray)|(?:(?i)telesync)|DvDScr|hdtv|PPV`),
+	regexp.MustCompile(`(?:PPV\.)?[HP]DTV|(?:HD)?CAM|hd-?ts|(?:PPV )?WEB-?DL(?: DVDRip)?|(?:D[vV][dD]|H[dD]|Cam|W[EB]B|B[DR])(?:(?i)rip)|(?:(?i)blu[-]?ray)|(?:(?i)telesync)|DvDScr|hdtv|PPV|Dvd`),
 	regexp.MustCompile(`MP3|DD5\.?1|Dual[\- ]Audio|LiNE|DTS|AAC[.-]LC|AAC(?:\.?2\.0|2)?|AC3(?:\.5\.1)?|Dual|Audio`),
 	regexp.MustCompile(`xvid|[hx]\.?26[45](?:(?i)-fov|-w4f)?`),
 	regexp.MustCompile(`(?i)hindi|(?:rus|ita)(?:\.eng|$)|eng$`),
@@ -58,7 +58,7 @@ var commonPatterns = patterns{
 	regexp.MustCompile(`(?:Half-)?SBS`),
 	regexp.MustCompile(`MKV|AVI|MP4`),
 	regexp.MustCompile(`10bit`),
-	regexp.MustCompile(`UpScaled|iNTERNAL|CONVERT|[hH]ard[sS]ub|READNFO|PROPER|REPACK|UNRATED|(?:(?i)rarbg)|(?:(?i)hevc)|AMZN|PDTV|1CD|WEB|NBY|R[0-9]|TS|HC|WS|3D`),
+	regexp.MustCompile(`UpScaled|iNTERNAL|CONVERT|READNFO|PROPER|REPACK|UNRATED|FRENCH|(?:(?i)hardsub)|(?:(?i)ensub)|(?:(?i)rarbg)|(?:(?i)hevc)|AMZN|PDTV|YIFY|1CD|WEB|NBY|R[0-9]|TS|HC|WS|3D`),
 }
 
 type movie struct {

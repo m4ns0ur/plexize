@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -468,6 +467,46 @@ func TestParse(t *testing.T) {
 			"The_Swan_2023_10bit_1080p_x265_WEB-DL",
 			"The Swan", "2023", "", "", "",
 		},
+		{
+			"Anatomy.Of.A.Fall.2023.FRENCH.ENSUB.720p.WEBRip.x264",
+			"Anatomy Of A Fall", "2023", "", "", "",
+		},
+		{
+			"Film_pok.Drive.2011.720p.BluRay.x264.AAC",
+			"Drive", "2011", "", "", "",
+		},
+		{
+			"Ordinary.Angels.2024.1080P.Webrip.X264.Aac5.1-[Yts.Mx]",
+			"Ordinary Angels", "2024", "", "", "",
+		},
+		{
+			"Maxxxine.2024.720P.Web.H264-Sitbackandrelaxxx",
+			"Maxxxine", "2024", "", "", "",
+		},
+		{
+			"Twisters.2024.720P.Web-Dl.Ddp5.1.Atmos.H.264.Flux",
+			"Twisters", "2024", "", "", "",
+		},
+		{
+			"Borderlands.2024.720P.Web-Dl.H264",
+			"Borderlands", "2024", "", "", "",
+		},
+		{
+			"The.Damned.2024.Dvd.576P.Remux",
+			"The Damned", "2024", "", "", "",
+		},
+		// {
+		// 	"The.Good.Teacher.2024_720p_WEB-DL_AAC_YIFY",
+		// 	"The Good Teacher", "2024", "", "", "",
+		// },
+		{
+			"Deadpool_And_Wolverine_2024_720P_Web_Dl_Ddp5_1_Atmos_H_264_Flux",
+			"Deadpool And Wolverine", "2024", "", "", "",
+		},
+		{
+			"Alien.Romulus.2024.720P.Web-Dl.H264.Ethel",
+			"Alien Romulus", "2024", "", "", "",
+		},
 	}
 
 	for _, tt := range ts {
@@ -710,13 +749,10 @@ func BenchmarkConvert(b *testing.B) {
 }
 
 func testDir(paths ...string) (string, error) {
-	d, err := ioutil.TempDir("", "plexize")
-	if err != nil {
-		return "", err
-	}
+	d := os.TempDir()
 
 	for _, p := range paths {
-		if err := ioutil.WriteFile(filepath.Join(d, p), nil, 0666); err != nil {
+		if err := os.WriteFile(filepath.Join(d, p), nil, 0666); err != nil {
 			return "", err
 		}
 	}
