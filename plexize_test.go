@@ -676,45 +676,54 @@ func TestConvert(t *testing.T) {
 		p       string
 		d, s, c bool
 		o       string
+		r       string
 		n       string
 	}{
 		{
-			mn, true, false, false, "",
+			mn, true, false, false, "", "",
 			"Foo (2020).abc",
 		},
 		{
-			mn, true, false, false, "target",
+			mn, true, false, false, "target", "",
 			filepath.Join("target", "Foo (2020).abc"),
 		},
 		{
-			mn, true, true, false, "",
+			mn, true, true, false, "", "",
 			filepath.Join("Foo (2020)", "Foo (2020).abc"),
 		},
 		{
-			mn, true, true, false, "target",
+			mn, true, true, false, "target", "",
 			filepath.Join("target", "Foo (2020)", "Foo (2020).abc"),
 		},
 		{
-			tn, true, false, false, "",
+			tn, true, false, false, "", "",
 			filepath.Join("Foo", "Season 01", "Foo - s01e02 - Bar.abc"),
 		},
 		{
-			tn, true, false, false, "target",
+			tn, true, false, false, "target", "",
 			filepath.Join("target", "Foo", "Season 01", "Foo - s01e02 - Bar.abc"),
+		},
+		{
+			tn, true, false, false, "target", "renamed-foo",
+			filepath.Join("target", "renamed-foo", "Season 01", "Foo - s01e02 - Bar.abc"),
 		},
 		// Not dry run.
 		{
-			mn, false, true, false, filepath.Join(d, "target"),
+			mn, false, true, false, filepath.Join(d, "target"), "",
 			filepath.Join(d, "target", "Foo (2020)", "Foo (2020).abc"),
 		},
 		{
-			tn, false, false, false, filepath.Join(d, "target"),
+			tn, false, false, false, filepath.Join(d, "target"), "",
 			filepath.Join(d, "target", "Foo", "Season 01", "Foo - s01e02 - Bar.abc"),
+		},
+		{
+			tn, false, false, false, filepath.Join(d, "target"), "renamed-foo",
+			filepath.Join(d, "target", "renamed-foo", "Season 01", "Foo - s01e02 - Bar.abc"),
 		},
 	}
 
 	for _, tt := range ts {
-		np := convert(tt.p, tt.d, tt.s, tt.c, tt.o)
+		np := convert(tt.p, tt.d, tt.s, tt.c, tt.o, tt.r)
 		if np != tt.n {
 			t.Errorf("got:  %s\nwant: %s", np, tt.n)
 		}
@@ -744,7 +753,7 @@ func BenchmarkConvert(b *testing.B) {
 	defer os.RemoveAll(d)
 
 	for i := 0; i < b.N; i++ {
-		convert(n, false, false, false, filepath.Join(d, "target"))
+		convert(n, false, false, false, filepath.Join(d, "target"), "")
 	}
 }
 

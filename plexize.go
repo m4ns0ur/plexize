@@ -241,6 +241,7 @@ Options:
   -o, --change-owner        Change file owner to plex:plex (sudo might be needed)
   -p, --path PATH           Output path (move file to the path and then refactor)
   -s, --separate            Separate movie files in their own folders (not required for TV series)
+  -n, --rename              Rename the parsed plex directory (good for TV series)
 
 Example:
   $ plexize                                        # start in interactive mode to convert file(s) name
@@ -250,7 +251,8 @@ Example:
   $ plexize -d The.Platform.2019.720p.mkv          # dry run
   $ plexize -p ~/plex The.Platform.2019.720p.mkv   # move the file to ~/plex and convert
   $ plexize -m -o -s The.Platform.2019.720p.mkv    # change mode/owner and move the movie file to its own folder
-  $ plexize -m -o The.Flash.2014.S01E01.HDTV.mkv   # change mode/owner a TV show file (would be separated in its own folder)`)
+  $ plexize -m -o The.Flash.2014.S01E01.HDTV.mkv   # change mode/owner a TV show file (would be separated in its own folder)
+  $ plexize -m -o -r dc-flash The.Flash.S01E01.mkv # change mode/owner and rename the TV show folder`)
 }
 
 func main() {
@@ -258,7 +260,7 @@ func main() {
 
 	var (
 		dryRun, chmod, chown, separate bool
-		outDir                         string
+		outDir, renameDir              string
 	)
 
 	flag.Usage = usage
@@ -272,13 +274,15 @@ func main() {
 	flag.StringVar(&outDir, "path", "", "Output path (move file to the path and then refactor)")
 	flag.BoolVar(&separate, "s", false, "Separate movie files in their own folders (not required for TV series)")
 	flag.BoolVar(&separate, "separate", false, "Separate movie files in their own folders (not required for TV series)")
+	flag.StringVar(&renameDir, "r", "", "Rename the parsed plex directory (good for TV series)")
+	flag.StringVar(&renameDir, "rename", "", "Rename the parsed plex directory (good for TV series)")
 	flag.Parse()
 
 	if flag.Arg(0) == "" || flag.Arg(0) == "-" {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			l := scanner.Text()
-			log.Printf("%s\n", convert(l, true, false, false, ""))
+			log.Printf("%s\n", convert(l, true, false, false, "", ""))
 		}
 		if err := scanner.Err(); err != nil {
 			log.Fatalf("cannot read from stdin: %v\n", err)
@@ -312,7 +316,7 @@ func main() {
 			paths = append(paths, flag.Arg(i))
 		}
 		for _, path := range paths {
-			np := convert(path, dryRun, separate, chown, outDir)
+			np := convert(path, dryRun, separate, chown, outDir, renameDir)
 			log.Printf("%s -> %s\n", path, np)
 
 			if !dryRun {
@@ -346,7 +350,7 @@ func main() {
 	}
 }
 
-func convert(path string, dryRun, separate, chown bool, outDir string) (newPath string) {
+func convert(path string, dryRun, separate, chown bool, outDir string, renameDir string) (newPath string) {
 	dir, file := filepath.Split(path)
 	ext := filepath.Ext(file)
 
@@ -364,15 +368,19 @@ func convert(path string, dryRun, separate, chown bool, outDir string) (newPath 
 		ps[0] = outDir
 	}
 	if separate || pf.mov.season != "" {
-		ps = append(ps, pf.plexDir())
+		if renameDir != "" {
+			ps = append(ps, renameDir)
+		} else {
+			ps = append(ps, pf.plexDir())
+		}
 		if !dryRun {
-			makeDir(chown, "cannot make separate movie or TV serie folder: %v\n", ps...)
+			makeDir(chown, "cannot make separate movie or TV series folder: %v\n", ps...)
 		}
 	}
 	if pf.mov.season != "" {
 		ps = append(ps, pf.seasonDir())
 		if !dryRun {
-			makeDir(chown, "cannot make TV serie season folder: %v\n", ps...)
+			makeDir(chown, "cannot make TV series season folder: %v\n", ps...)
 		}
 	}
 	ps = append(ps, pf.plexName())
